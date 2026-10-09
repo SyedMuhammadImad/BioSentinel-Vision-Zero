@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "real_browser": "Edge",
+  "camera": "simulated; no user camera accessed",
+  "vision": "synthetic protocol provider; real models tested separately",
+  "checks": [
+    {
+      "name": "camera starts only by user action",
+      "passed": true
+    },
+    {
+      "name": "browser enrollment",
+      "passed": true
+    },
+    {
+      "name": "browser full-factor login",
+      "passed": true
+    },
+    {
+      "name": "browser heartbeat",
+      "passed": true
+    },
+    {
+      "name": "browser refresh rotation and signout",
+      "passed": true
+    },
+    {
+      "name": "browser admin recovery",
+      "passed": true
+    },
+    {
+      "name": "camera stops and mobile layout fits",
+      "passed": true
+    },
+    {
+      "name": "no browser script exceptions",
+      "passed": true
+    }
+  ]
+}

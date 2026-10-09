@@ -1,0 +1,101 @@
+{
+  "original_database_accessed": false,
+  "camera_accessed": false,
+  "real_models": true,
+  "checks": [
+    {
+      "name": "runtime imports",
+      "passed": true,
+      "seconds": 74.22,
+      "result": {
+        "opencv": "4.13.0",
+        "mediapipe": "0.10.35",
+        "tensorflow": "2.21.0",
+        "torch": "2.14.1+cpu"
+      }
+    },
+    {
+      "name": "real model setup",
+      "passed": true,
+      "seconds": 11.33,
+      "result": {
+        "ready": true
+      }
+    },
+    {
+      "name": "blank frame rejection",
+      "passed": true,
+      "seconds": 4.33,
+      "result": {
+        "rejected": true
+      }
+    },
+    {
+      "name": "real detection landmarks embedding",
+      "passed": true,
+      "seconds": 4.06,
+      "result": {
+        "bbox": [
+          425,
+          172,
+          1009,
+          1014
+        ],
+        "embedding_dimensions": 128,
+        "repeat_similarity": 1.0,
+        "geometry": [
+          0.27234169150392545,
+          0.27781500028059203,
+          0.5177063766683144
+        ],
+        "test_image_source": "https://raw.githubusercontent.com/serengil/deepface/master/tests/unit/dataset/img1.jpg",
+        "test_image_sha256": "897c073e8af7c297cf179fadf4f59538d1efa17722679447475463d61c72bac3",
+        "anti_spoofing_disabled_for_embedding_smoke_only": true
+      }
+    },
+    {
+      "name": "real anti-spoof inference and provider gate",
+      "passed": true,
+      "seconds": 3.22,
+      "result": {
+        "public_static_photo_label_real": true,
+        "score": 0.8960923254489899,
+        "provider_outcome": "accepted observation",
+        "limitation": "A model inference check is not a physical presentation-attack benchmark."
+      }
+    }
+  ],
+  "assets": [
+    {
+      "file": "face_landmarker.task",
+      "bytes": 3758596,
+      "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+    },
+    {
+      "file": "yolov8n-face.pt",
+      "bytes": 6389512,
+      "sha256": "d545bf1add5aa736a4febac4f4f9245a6d596cd0fe70d5d57989fe0cb9e626ca"
+    },
+    {
+      "file": "2.7_80x80_MiniFASNetV2.pth",
+      "bytes": 1849453,
+      "sha256": "a5eb02e1843f19b5386b953cc4c9f011c3f985d0ee2bb9819eea9a142099bec0"
+    },
+    {
+      "file": "4_0_0_80x80_MiniFASNetV1SE.pth",
+      "bytes": 1856130,
+      "sha256": "84ee1d37d96894d5e82de5a57df044ef80a58be2b218b5ed7cdfd875ec2f5990"
+    },
+    {
+      "file": "facenet_weights.h5",
+      "bytes": 92190816,
+      "sha256": "90659cc97bfda5999120f95d8e122f4d262cca11715a21e59ba024bcce816d5c"
+    },
+    {
+      "file": "retinaface.h5",
+      "bytes": 118667368,
+      "sha256": "ecb2393a89da3dd3d6796ad86660e298f62a0c8ae7578d92eb6af14e0bb93adf"
+    }
+  ],
+  "passed": true
+}

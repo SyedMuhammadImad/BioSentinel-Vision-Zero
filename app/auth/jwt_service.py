@@ -1,110 +1,71 @@
-import logging
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Tuple
-
-from jose import jwt, JWTError
+"""Typed JWTs, digest-only sessions and authenticated encrypted templates."""
+import hashlib,hmac,json,re,secrets,time,uuid
+from datetime import datetime,timezone
+import numpy as np
+from cryptography.fernet import Fernet,InvalidToken
+import jwt
+from jwt import PyJWTError as JWTError
 from passlib.context import CryptContext
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.config import settings
+from app.models import User,Session
 
-from app.models import Session, User
-from constants import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    ALGORITHM,
-    REFRESH_TOKEN_EXPIRE_DAYS,
-    SECRET_KEY,
-)
+ISSUER='biosentinel-local';AUDIENCE='biosentinel-api';ALGORITHM='HS256'
+pwd_context=CryptContext(schemes=['bcrypt'],deprecated='auto')
+def digest(value):return hashlib.sha256(value.encode()).hexdigest()
+def client_tag(value):return hmac.new(settings.secret_key.encode(),value.encode(),hashlib.sha256).hexdigest()
+def username(value):
+ value=value.strip().lower()
+ if not re.fullmatch(r'[a-z0-9][a-z0-9_.-]{2,49}',value):raise ValueError('Username must contain 3–50 letters, numbers, dots, underscores or hyphens')
+ return value
+def valid_password(value):
+ if not isinstance(value,str) or not 8<=len(value.encode('utf-8'))<=72:raise ValueError('Password must contain 8–72 UTF-8 bytes')
+ return value
+def hash_password(value):return pwd_context.hash(valid_password(value))
+def verify_password(plain,hashed):
+ try:return pwd_context.verify(valid_password(plain),hashed)
+ except (ValueError,TypeError):return False
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-logger = logging.getLogger(__name__)
+def encode(user_id,sid,kind,lifetime):
+ now=int(time.time())
+ return jwt.encode({'sub':str(user_id),'sid':sid,'type':kind,'jti':str(uuid.uuid4()),'iat':now,'nbf':now,'exp':now+lifetime,'iss':ISSUER,'aud':AUDIENCE},settings.secret_key,algorithm=ALGORITHM)
 
+def decode_token(token,expected='access'):
+ try:
+  if not isinstance(token,str) or len(token)>2048:return None
+  claims=jwt.decode(token,settings.secret_key,algorithms=[ALGORITHM],issuer=ISSUER,audience=AUDIENCE,options={'require':['exp','iat','nbf','sub','aud','iss','sid','jti','type']})
+  if claims.get('type')!=expected or not str(claims['sub']).isdigit() or int(claims['sub'])<1:return None
+  if str(uuid.UUID(claims['sid']))!=claims['sid'] or str(uuid.UUID(claims['jti']))!=claims['jti']:return None
+  if any(isinstance(claims.get(k),bool) or not isinstance(claims.get(k),int) for k in ('iat','nbf','exp')):return None
+  if claims['iat']>time.time()+5 or claims['nbf']<claims['iat'] or claims['exp']<=claims['iat']:return None
+  return claims
+ except (JWTError,ValueError,TypeError,KeyError,AttributeError):return None
 
-def hash_password(plain: str) -> str:
-    return pwd_context.hash(plain)
+async def resolve(db,token,expected='access'):
+ claims=decode_token(token,expected)
+ if claims is None:return None
+ session=await db.get(Session,claims['sid'])
+ if session is None or session.is_revoked or session.user_id!=int(claims['sub']):return None
+ stored=session.access_digest if expected=='access' else session.refresh_digest
+ expires=session.expires_at if expected=='access' else session.refresh_expires_at
+ if expires<=time.time() or not hmac.compare_digest(stored,digest(token)):return None
+ user=await db.get(User,session.user_id)
+ if user is None or not user.is_active:return None
+ return user,session
 
+async def save_session(db,user_id,ip_tag,family_id=None):
+ sid=str(uuid.uuid4());now=time.time();access=encode(user_id,sid,'access',settings.access_seconds);refresh=encode(user_id,sid,'refresh',settings.refresh_seconds)
+ session=Session(id=sid,user_id=user_id,family_id=family_id or sid,access_digest=digest(access),refresh_digest=digest(refresh),created_at=now,expires_at=now+settings.access_seconds,refresh_expires_at=now+settings.refresh_seconds,is_revoked=False,ip_tag=ip_tag)
+ db.add(session);await db.flush()
+ return access,refresh
 
-def verify_password(plain: str, hashed: str) -> bool:
-    try:
-        return pwd_context.verify(plain, hashed)
-    except Exception:
-        return False
+def encrypt_template(embedding):
+ from app.cv.embeddings import validate_embedding
+ vector=validate_embedding(embedding)
+ return Fernet(settings.encryption_key.encode()).encrypt(json.dumps(vector.tolist(),allow_nan=False).encode()).decode()
+def decrypt_template(ciphertext):
+ from app.cv.embeddings import validate_embedding
+ try:return validate_embedding(json.loads(Fernet(settings.encryption_key.encode()).decrypt(ciphertext.encode())))
+ except (InvalidToken,ValueError,TypeError,UnicodeError):raise ValueError('Enrollment template unavailable') from None
 
-
-def create_access_token(data: dict) -> str:
-    payload = data.copy()
-    payload["exp"] = datetime.now(timezone.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-    )
-    payload["type"] = "access"
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def create_refresh_token(data: dict) -> str:
-    payload = data.copy()
-    payload["exp"] = datetime.now(timezone.utc) + timedelta(
-        days=REFRESH_TOKEN_EXPIRE_DAYS
-    )
-    payload["type"] = "refresh"
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def decode_token(token: str) -> Optional[dict]:
-    try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError as exc:
-        logger.warning("Token decode failed: %s", exc)
-        return None
-
-
-def create_token_pair(user_id: int, username: str, role: str) -> Tuple[str, str]:
-    payload = {"sub": str(user_id), "username": username, "role": role}
-    access_token = create_access_token(payload)
-    refresh_token = create_refresh_token(payload)
-    return access_token, refresh_token
-
-
-async def save_session(
-    db: AsyncSession,
-    user_id: int,
-    access_token: str,
-    refresh_token: str,
-) -> Session:
-    payload = decode_token(access_token)
-    exp = payload["exp"]
-    expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
-
-    session = Session(
-        user_id=user_id,
-        access_token=access_token,
-        refresh_token=refresh_token,
-        expires_at=expires_at,
-    )
-    db.add(session)
-    await db.flush()  # populate session.id without committing
-    return session
-
-
-async def revoke_session(db: AsyncSession, access_token: str) -> bool:
-    result = await db.execute(
-        select(Session).where(
-            Session.access_token == access_token,
-            Session.is_revoked == False,  # noqa: E712
-        )
-    )
-    session = result.scalars().first()
-    if session is None:
-        return False
-
-    session.is_revoked = True
-    await db.flush()
-    return True
-
-
-async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
-    result = await db.execute(
-        select(User).where(
-            User.username == username,
-            User.is_active == True,  # noqa: E712
-        )
-    )
-    return result.scalars().first()
+async def get_user_by_username(db,name):return (await db.execute(select(User).where(User.username==name))).scalar_one_or_none()

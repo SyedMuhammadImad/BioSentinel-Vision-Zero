@@ -75,3 +75,16 @@ Thumbs.db
 *.pbix
 *.pkt
 *.pka
+weights/
+*.pt
+*.pth
+*.h5
+*.task
+*.onnx
+.pytest_cache/
+private/
+runtime.json
+models/
+keras/
+yolo/
+matplotlib/

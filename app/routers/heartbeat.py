@@ -1,113 +1,38 @@
-"""Heartbeat router: re-verify a live face for an already-authenticated session.
+"""Fresh face sequence, deterministic risk floor and persisted enforcement."""
+from fastapi import APIRouter,Depends,HTTPException,Request,Form,File,UploadFile
+from app.auth.challenges import consume
+from app.auth.jwt_service import decrypt_template,resolve
+from app.auth.events import revoke,event
+from app.database import transaction
+from app.middleware.rbac import get_current_identity
+from app.middleware.audit import peer_tag
+from app.middleware.risk import assemble_signals
+from app.cv.embeddings import is_match
+from app.risk.engine import evaluate_risk,RiskUnavailable
+from app.routers.login import sequence
 
-A single ``POST /heartbeat`` endpoint runs an uploaded frame through face
-detection (``app.cv.stepup``) and a DeepFace embedding match
-(``app.cv.embeddings``) against the caller's enrolled template, then stashes
-the raw cosine similarity on ``request.state.face_similarity``. ``RiskMiddleware``
-reads that value after the handler returns and feeds it to the Gemma risk
-engine, so this path is where ongoing session risk is continuously re-scored.
-
-Read-only with respect to the database, so the request-scoped ``get_db`` session
-is sufficient — there is nothing here that must persist past an exception.
-"""
-
-import logging
-
-from fastapi import (
-    APIRouter,
-    Depends,
-    File,
-    HTTPException,
-    Request,
-    UploadFile,
-    status,
-)
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.cv.embeddings import extract_embedding, is_match, json_to_embedding
-from app.cv.stepup import step_up_detector
-from app.database import get_db
-from app.middleware.rbac import get_current_user
-from app.models import User
-from app.routers.enroll import _decode_image
-
-router = APIRouter(tags=["monitoring"])
-logger = logging.getLogger(__name__)
-
-
-@router.post("/heartbeat")
-async def heartbeat(
-    request: Request,
-    image: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Re-verify the caller's face mid-session and expose the similarity score.
-
-    A missing face or unextractable embedding is reported as a soft outcome
-    (``face_similarity`` of 0.0) rather than an error, so the risk engine still
-    sees a conservative signal and can react. Only genuinely unexpected failures
-    surface as a 500.
-    """
-    try:
-        # STEP 1 — decode the uploaded frame into a BGR array (reuses enroll's).
-        image_bytes = await image.read()
-        frame = _decode_image(image_bytes)
-        if frame is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Could not decode image",
-            )
-
-        # STEP 2 — locate the face; no face is a soft outcome that still feeds a
-        # 0.0 similarity to RiskMiddleware rather than failing the request.
-        detection = step_up_detector.detect(frame)
-        if detection is None:
-            request.state.face_similarity = 0.0
-            return {
-                "status": "no_face",
-                "face_similarity": 0.0,
-                "message": "No face detected in frame",
-            }
-
-        # STEP 3 — extract the live embedding; a spoof/low-quality crop comes
-        # back as None and is likewise treated as a 0.0 similarity.
-        live_embedding = extract_embedding(detection.face_crop)
-        if live_embedding is None:
-            request.state.face_similarity = 0.0
-            return {
-                "status": "no_embedding",
-                "face_similarity": 0.0,
-                "message": "Could not extract face embedding",
-            }
-
-        # STEP 4 — load the enrolled template; a corrupt one is a real 500.
-        stored_embedding = json_to_embedding(current_user.face_embedding)
-        if stored_embedding is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="User enrollment data corrupted",
-            )
-
-        # STEP 5 — compare and expose the raw score; RiskMiddleware reads
-        # request.state.face_similarity before calling Gemma.
-        matched, similarity = is_match(live_embedding, stored_embedding)
-        request.state.face_similarity = similarity
-
-        # STEP 6 — hand back the rounded score and match decision.
-        return {
-            "status": "ok",
-            "face_similarity": round(similarity, 4),
-            "matched": matched,
-            "message": "Heartbeat received",
-        }
-    except HTTPException:
-        # Deliberate 4xx/5xx outcomes pass through untouched — only genuinely
-        # unexpected failures should be masked as the generic 500 below.
-        raise
-    except Exception as e:
-        logger.exception("Heartbeat error: %s", e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Heartbeat processing failed",
-        )
+router=APIRouter(tags=['monitoring'])
+@router.post('/heartbeat')
+async def heartbeat(request:Request,challenge_id:str=Form(),timestamps:str=Form(),frames:list[UploadFile]=File(),identity=Depends(get_current_identity)):
+ user,session=identity;tag=peer_tag(request)
+ kind=await consume(challenge_id,'heartbeat',user.username,tag,session.id)
+ try:
+  embedding=await sequence(request,frames,timestamps,kind)
+  matched,similarity=is_match(embedding,decrypt_template(user.face_embedding))
+  signals=await assemble_signals(user.id,similarity,tag,session)
+  score,reason=await evaluate_risk(signals)
+ except (ValueError,RiskUnavailable):
+  await revoke(user.id,tag,'heartbeat_unavailable',session_id=session.id)
+  raise HTTPException(503,'Verification unavailable; session revoked') from None
+ except HTTPException:
+  await revoke(user.id,tag,'heartbeat_denied',session_id=session.id);raise
+ if not matched or score>=90:
+  await revoke(user.id,tag,'critical_lockout',lock=True,score=score)
+  raise HTTPException(403,'Account locked; administrator recovery required')
+ if score>=70:
+  await revoke(user.id,tag,'stepup',score=score)
+  raise HTTPException(401,'Full authentication required')
+ async with transaction() as db:
+  if await resolve(db,request.state.access_token) is None:raise HTTPException(401,'Session revoked during verification')
+  event(db,user.id,'heartbeat_ok',tag,score=score)
+ return {'status':'verified','face_similarity':round(similarity,4),'risk_score':score,'reason':reason}

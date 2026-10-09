@@ -1,57 +1,107 @@
 {
-  "date": "2026-10-05",
+  "date": "2026-10-09",
   "title": "BioSentinel biometric authentication prototype",
-  "runtime_verified_for_publication": false,
+  "completion_gate_passed": true,
   "files": [
     {
       "path": ".gitignore",
-      "sha256": "dcc5987d5ebbaef7a8b30dc3a63b44d5c29b16fce8e7ee4ee833a494f2edcc77",
-      "bytes": 795
+      "sha256": "88d90389908802f761af7bedaf75243596e38ab08e0e86c7afdc747067024689",
+      "bytes": 903
+    },
+    {
+      "path": "ATTRIBUTION.md",
+      "sha256": "ead90cdd773d6cb94ff335b9c18080640088679614bbd9d3ba6938209d2d226e",
+      "bytes": 1610
+    },
+    {
+      "path": "BROWSER_CHECKS.json",
+      "sha256": "e6313934df8716d7f64c9f1a97b7695642055b00013b7ad3f26915cb1d169e83",
+      "bytes": 857
     },
     {
       "path": "constants.py",
-      "sha256": "df28dc0181138e6f2b9491584ef1b7a7153f7106567d224e76bdedc6509f7442",
-      "bytes": 411
+      "sha256": "fd66d42fc170d4e862b9165b67db4c31c8f48bd7732e6ee58de6bed015970a50",
+      "bytes": 542
     },
     {
-      "path": "HANDOFF.md",
-      "sha256": "004aea18b078a6cf4d8b97ab8918ccd6d310ed1e3ef334b09b25778b9cd85546",
-      "bytes": 15390
+      "path": "DEPENDENCY_CHECK.json",
+      "sha256": "53ed6748a4536a10ecdab4d2c990b2964845660e00d5cf5b38bb02fc2e73e803",
+      "bytes": 232
+    },
+    {
+      "path": "MODEL_CHECKS.json",
+      "sha256": "8fa6411862ebd33c40bdfe02a60785ede10eee2af90633291bd467cda14d277e",
+      "bytes": 2808
     },
     {
       "path": "README.md",
-      "sha256": "50da0c9e8a01370984f3f490798ab57b3ab57fd96c036f9efbb3fe34cfd25129",
-      "bytes": 1013
+      "sha256": "7d69a632d06f399e502820aeddb121c5146408a77530bafa4509639840960ac1",
+      "bytes": 6335
+    },
+    {
+      "path": "requirements-lock.txt",
+      "sha256": "6cf3ea292220319aec5ba47198631e2b172983d025d491ce5d2ac2e0d6fea265",
+      "bytes": 2182
     },
     {
       "path": "requirements.txt",
-      "sha256": "ebd186b281f41d613ac5ed269ce789571b18db8ac2089abf0cfa82645dbbff94",
-      "bytes": 434
+      "sha256": "ec8f58d1e5772a28dd8d29f321cd10b88ddcc482eec01dc0739890fbd0838b20",
+      "bytes": 473
     },
     {
-      "path": "tmp_reset_user.py",
-      "sha256": "c55caa756359638f4c3764de0eb4d4925b95fe6dd9fe21522dea730c9ea5140c",
-      "bytes": 934
+      "path": "run_local.py",
+      "sha256": "96362a0c3191f8312d572543d7c58c1bfa825f565d464d179f5c56835864bf50",
+      "bytes": 2014
+    },
+    {
+      "path": "setup_models.py",
+      "sha256": "2ee9b2195defd80d307db258cfc86af43d5b6ed406b9b1683a601cdaf04dbb7d",
+      "bytes": 1664
+    },
+    {
+      "path": "THREAT_MODEL.md",
+      "sha256": "d1c76c845df82dde10039f21fc170517bcfaeb2b80b29fea9de7cd7274f33cc2",
+      "bytes": 3419
+    },
+    {
+      "path": "VALIDATION.md",
+      "sha256": "2987a88774c877e24890d2de23e6afa620811fc8b36af5a2ed3a7596356474b9",
+      "bytes": 4305
+    },
+    {
+      "path": "VERIFICATION.json",
+      "sha256": "d37e40ed92c95c920c5234457f7f48f9cbc3270091d1051ca7c8d759e8d6426b",
+      "bytes": 1857
+    },
+    {
+      "path": "app/config.py",
+      "sha256": "edea138eea0585576a10b1933e8fb56d7b616a69c5e9520200a88d127a03ea2c",
+      "bytes": 2056
     },
     {
       "path": "app/database.py",
-      "sha256": "ab620a268a21a2bc8721bbf74845907429c51f9c4b193d00fd94b50704ddf071",
-      "bytes": 812
+      "sha256": "6fd05e3d6d0eb83b74e822041e24277873ca3d3a74e903ac311c77afe393759e",
+      "bytes": 1461
     },
     {
       "path": "app/main.py",
-      "sha256": "21afaa5cb54a4211fda1341f63875caa7c4cc77ede5c6f2553d063c49c266f15",
-      "bytes": 2588
+      "sha256": "aa0466cfbbd95c3dcb8801cd34464438b066dc9117b3e716ac68edf1560838a6",
+      "bytes": 2788
+    },
+    {
+      "path": "app/manage.py",
+      "sha256": "6c7ccd4c75e9ddba8ca7edc4b639f414244e50f54cfca1d33378c8ee562dd925",
+      "bytes": 1255
     },
     {
       "path": "app/models.py",
-      "sha256": "c60ae565388abc663e16fc6ac7161c16ca13d3623612bde7e1b4918848b1b6c2",
-      "bytes": 1876
+      "sha256": "bfcb17f7453d9515610b66126965485f2a33636be1fcc6bc237e22fb6b398d93",
+      "bytes": 2657
     },
     {
       "path": "app/schemas.py",
-      "sha256": "003636baf4eccc6c8e74961bf383f0af48372a22195840584b5b7a0d9be8d220",
-      "bytes": 1161
+      "sha256": "8bbe3daf2e7c5572a805b0b4c01ae0a2ee32bfdc38d98183d9cc682233c3b944",
+      "bytes": 591
     },
     {
       "path": "app/__init__.py",
@@ -59,9 +109,54 @@
       "bytes": 0
     },
     {
+      "path": "tests/browser_server.py",
+      "sha256": "70eb836f710a4264c0efa9bb5553d0b2d11868fbb46f4eb4a2cbbf429b24f72a",
+      "bytes": 1767
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "d6f949593490a3ee7ab671a4a21ea7e1e72cfbbe453dfbbcb57fd808d4dddca6",
+      "bytes": 1257
+    },
+    {
+      "path": "tests/support.py",
+      "sha256": "20d667a1f16e350d884c9589a70f431a02ed9e64d34d36055002a07aa2c10e1e",
+      "bytes": 1540
+    },
+    {
+      "path": "tests/test_boundaries.py",
+      "sha256": "21fbb90d8e7ac01a49c4056b8eb2dbd005f0ccad4f8367a2dfd8de04ed03423e",
+      "bytes": 5334
+    },
+    {
+      "path": "tests/test_operations.py",
+      "sha256": "973c34f7ac96d6981376aebe95c6244a8557f988d9d9e7455763ac56176503f6",
+      "bytes": 2655
+    },
+    {
+      "path": "tests/test_protocol.py",
+      "sha256": "2ad71e7a502f61cf9e043e2723959923c06fab6d7b762349a86ec08dd1c30fa6",
+      "bytes": 12475
+    },
+    {
+      "path": "tests/__init__.py",
+      "sha256": "e4c6b00a25d490f266465c72507ae53dc02c1e533ee9bc889cbeff581fd55d1b",
+      "bytes": 34
+    },
+    {
+      "path": "app/auth/challenges.py",
+      "sha256": "66df6901ab6231044fd80aa78df814f5ea30d117ab4b704c4ec4d38e9eb177c2",
+      "bytes": 1818
+    },
+    {
+      "path": "app/auth/events.py",
+      "sha256": "cb9265ff057600dab61c75e10e7573314c22adb6c835024c4fefbaead8d2a4ac",
+      "bytes": 1414
+    },
+    {
       "path": "app/auth/jwt_service.py",
-      "sha256": "8447068bef03ca5645cdb97310151c4c22fb26aed814d214fad34591ea62af82",
-      "bytes": 3032
+      "sha256": "ee15b8b683a421c1bcacb9953ab04d8cee58aeaef895b63a58bd65860184b349",
+      "bytes": 4331
     },
     {
       "path": "app/auth/__init__.py",
@@ -70,23 +165,33 @@
     },
     {
       "path": "app/cv/detector.py",
-      "sha256": "5728ebc0784f82369569cf802aa8f0e483663ae7f331f5315330c53d05e04408",
-      "bytes": 2581
+      "sha256": "809eb3dfb22fb872402f5808bfa9e488d4e67adc40e63b0d597b836729a83f1f",
+      "bytes": 1279
     },
     {
       "path": "app/cv/embeddings.py",
-      "sha256": "a33ebe7588a4fecc2cc8c6723e57208056f15b57aadd3e8dc2826dca92bd72fb",
-      "bytes": 3141
+      "sha256": "3307db6967a6b59ec7c7ba996128f5232d3e1de906b5f9bb96f9d5928576fe2a",
+      "bytes": 729
     },
     {
       "path": "app/cv/liveness.py",
-      "sha256": "282b46544b1ca1d4d32d24f252e43fa21fc77253644f593d5838992740afa079",
-      "bytes": 7659
+      "sha256": "e2ad1007193117bd7852a93efe6272a18c6bca0432f39b8dbd78709bb35c95d6",
+      "bytes": 3594
+    },
+    {
+      "path": "app/cv/provider.py",
+      "sha256": "aac27857e7b392ce34ba5c97b5f96220bfc01e134983086406b97e50cba28776",
+      "bytes": 3204
     },
     {
       "path": "app/cv/stepup.py",
-      "sha256": "0c5ec2f5859c172c2a9afdd73423d9fb65490c12484b0613988e716f83457297",
-      "bytes": 2278
+      "sha256": "57b0d57a98e57c0d9ecb4ecfe9f1ddc8f78215b503cbf673cadc4bd1e0ae8622",
+      "bytes": 955
+    },
+    {
+      "path": "app/cv/uploads.py",
+      "sha256": "f44eea7b8f68365e649d6b13c5f3d9ffcae5b28c201c10eff7dbdfc9a89bea61",
+      "bytes": 2113
     },
     {
       "path": "app/cv/__init__.py",
@@ -95,18 +200,23 @@
     },
     {
       "path": "app/middleware/audit.py",
-      "sha256": "8acca1eda54726737728013ab53fdd8b6f15613fa0a33e3774859327392aecef",
-      "bytes": 4703
+      "sha256": "bf916072b4872b5bb20aa0ce285ed6b0b4fa9b0aa6d8162a2cee29a7e54bd558",
+      "bytes": 231
+    },
+    {
+      "path": "app/middleware/guards.py",
+      "sha256": "ac972861f32c7af399b6ab48e7242e1a4cd1d26585a39d7de54f1042a40d5196",
+      "bytes": 1368
     },
     {
       "path": "app/middleware/rbac.py",
-      "sha256": "5696670e7a60e568c7f3ed6974e019f17d1b9f49118d07fee4d70cf9cb0d94d5",
-      "bytes": 1569
+      "sha256": "b4fd861b3eafa9f6784577d299c766209234357c37f4e0b19d92820921c56021",
+      "bytes": 1292
     },
     {
       "path": "app/middleware/risk.py",
-      "sha256": "eb958da25ea0276c6a357e63ed4f8a324f9aec7cb5c96b3fe902eff6d34f51de",
-      "bytes": 9742
+      "sha256": "80def301096d8ced89c92c5450e26e361856b52c33a83c041a645196d4b32752",
+      "bytes": 970
     },
     {
       "path": "app/middleware/__init__.py",
@@ -115,8 +225,8 @@
     },
     {
       "path": "app/risk/engine.py",
-      "sha256": "e92356005956eb4366b9b87d46d1cd23bea4c254ffe773f6eab229bd212fdc2e",
-      "bytes": 5517
+      "sha256": "2887d4a83ce2b4dea31e249931c4c1c6ad58f8afdf369a07b26ff516eeb5460a",
+      "bytes": 3122
     },
     {
       "path": "app/risk/__init__.py",
@@ -125,33 +235,43 @@
     },
     {
       "path": "app/routers/admin.py",
-      "sha256": "13ef78b7f8d97a34e8b9e56eca2bd0ffd9b1abab91d29575236063aabeb25eca",
-      "bytes": 2856
-    },
-    {
-      "path": "app/routers/demo.py",
-      "sha256": "e0d9e6578cfb18fe0af78816579f84d5c4d81265050817b760bbe282cbbacfd0",
-      "bytes": 3470
+      "sha256": "32aac5c2cba4066039ff8fb7565ee19c0f92d23d019a4a1bed03f59a09c530ac",
+      "bytes": 1867
     },
     {
       "path": "app/routers/enroll.py",
-      "sha256": "f8cd2dc8455b38184feb6e8ee6f1bad2c8927391fa962d6e6178870c804e29ac",
-      "bytes": 5883
+      "sha256": "f4d60d6da05d72e165cd67580808d9918675a92feec583646e857dd1d3d326f0",
+      "bytes": 2013
     },
     {
       "path": "app/routers/heartbeat.py",
-      "sha256": "4b2f9632f55e17e0a05592cb5a34d9f8ee36feeca4fe04d98a85f801885679ae",
-      "bytes": 4372
+      "sha256": "5995c7ba28aac8f9f5d51eb4bd60aab548d93be2934abce14f340d4286007e6a",
+      "bytes": 2144
     },
     {
       "path": "app/routers/login.py",
-      "sha256": "a4900f2ba3f87bd357a1d68eab76702df343e4f2edd8ac60e9056ab45cb5e5ce",
-      "bytes": 12419
+      "sha256": "e31b0815d316030268f9d2be62652a0e19c8194154cedfc0ff3aaedc968652cc",
+      "bytes": 6211
     },
     {
       "path": "app/routers/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "bytes": 0
+    },
+    {
+      "path": "app/static/app.js",
+      "sha256": "d23d14bb5449cca61f9432857b73043ff5c5761a7e0a64df0357c3ab82eba2db",
+      "bytes": 8402
+    },
+    {
+      "path": "app/static/index.html",
+      "sha256": "48ce4c8959fa66cd4e491c9a3a42a12dd9181124c8260f5b308d3b4000b6f673",
+      "bytes": 3383
+    },
+    {
+      "path": "app/static/styles.css",
+      "sha256": "cd20035d68bb44a8930d85906f19548414811cd05fc9a6dc28fe34783507385e",
+      "bytes": 1786
     }
   ]
 }
